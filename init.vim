@@ -26,11 +26,16 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'jistr/vim-nerdtree-tabs'
 Plug 'tpope/vim-sensible'
 
+" Autocompletion
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" File finding
+Plug 'cloudhead/neovim-fuzzy' " Need to install fzy via brew first
 
 " Initialize plugin system
 call plug#end()
 " ^^^^^^^^^^^^  PLUGIN STOP  ^^^^^^^^^^^^
 
+set cursorline               " highlight current line
 
 " ----------- THEME ----------
 syntax enable
@@ -44,6 +49,22 @@ let g:airline_theme='hybrid'
 let g:airline#extensions#tabline#enabled = 1
 " let g:airline#extensions#tabline#left_sep = ' '
 " let g:airline#extensions#tabline#left_alt_sep = '|'
+set tabstop=4           " Render TABs using this many spaces.
+set tabstop=4
+set shiftwidth=4
+"set expandtab
+
+" ----------- Lines -----------
+set ruler               " Show the line and column numbers of the cursor.
+set number              " Show the line numbers on the left side.
+set linespace=0         " Set line-spacing to minimum.
+set showcmd                  " show command in bottom bar
+
+" ----------- Navigation -----------
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
 
 " ----------- NerdTree ----------
 " Open if no files are specified
@@ -63,5 +84,15 @@ let g:NERDTreeDirArrowCollapsible = '▾'
 let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
 " Set width
-let g:NERDTreeWinSize=20
+let g:NERDTreeWinSize=40
+" enable line numbers
+let NERDTreeShowLineNumbers=1
+" make sure relative line numbers are used
+autocmd FileType nerdtree setlocal relativenumber
+
+" --------- AutoCompletion ---------
+let g:deoplete#enable_at_startup = 1
+
+" --------- File Finding ----------
+nnoremap <C-p> :FuzzyOpen<CR>
 
