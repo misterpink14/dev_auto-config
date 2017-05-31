@@ -3,6 +3,7 @@
 TODO:
     [] add comments
     [] clean up a bit
+    [] add a check for vim-plug
     [] additional plugin requirements
     [] need to add pip install for neovim
 pip2 install --user neovim
@@ -48,7 +49,8 @@ def main():
     if not has_neovim():
         print("Installing NeoVim")
         install_neovim()
-    install_vimplug()
+        print("Installing vim-plug")
+        install_vimplug()
     print("Setting up NeoVim")
     setup_neovim()
     print("dun")
@@ -56,3 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
