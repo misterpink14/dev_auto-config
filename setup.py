@@ -8,6 +8,9 @@ TODO:
     [] need to add pip install for neovim
 pip2 install --user neovim
 pip3 install --user neovim
+    [] install homebrew
+    [] install ripgrep
+brew install ripgrep
 '''
 
 import os

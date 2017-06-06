@@ -26,10 +26,14 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'jistr/vim-nerdtree-tabs'
 Plug 'tpope/vim-sensible'
 
+" File Finding
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
 " Autocompletion
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " File finding
-Plug 'cloudhead/neovim-fuzzy' " Need to install fzy via brew first
+"Plug 'cloudhead/neovim-fuzzy' " Need to install fzy via brew first
 
 " Initialize plugin system
 call plug#end()
@@ -41,7 +45,7 @@ set cursorline               " highlight current line
 syntax enable
 set background=dark
 let g:hybrid_custom_term_colors = 1
-let g:hybrid_reduced_contrast = 1 " Remove this line if using the default palette.
+" let g:hybrid_reduced_contrast = 1 " Remove this line if using the default palette.
 colorscheme hybrid
 let g:airline_theme='hybrid'
 
@@ -58,7 +62,8 @@ set shiftwidth=4
 set ruler               " Show the line and column numbers of the cursor.
 set number              " Show the line numbers on the left side.
 set linespace=0         " Set line-spacing to minimum.
-set showcmd                  " show command in bottom bar
+set showcmd             " Show command in bottom bar
+set mouse=a             " Select text without line numbers
 
 " ----------- Navigation -----------
 noremap <Up> <NOP>
@@ -94,5 +99,16 @@ autocmd FileType nerdtree setlocal relativenumber
 let g:deoplete#enable_at_startup = 1
 
 " --------- File Finding ----------
-nnoremap <C-p> :FuzzyOpen<CR>
-
+" nnoremap <C-p> :FuzzyOpen<CR>
+set grepprg=rg\ --vimgrep
+" --column: Show column number
+" --line-number: Show line number
+" --no-heading: Do not show file headings in results
+" --fixed-strings: Search term as a literal string
+" --ignore-case: Case insensitive search
+" --no-ignore: Do not respect .gitignore, etc...
+" --hidden: Search hidden files and folders
+" --follow: Follow symlinks
+" --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+" --color: Search color options
+command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
