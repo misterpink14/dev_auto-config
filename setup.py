@@ -30,7 +30,7 @@ def install_neovim():
     """Installs neovim
     """
     subprocess.call(["brew", "install", "neovim/neovim/neovim"])
-    subprocess.call(["brew", "install", "ripgrep"])
+    #subprocess.call(["brew", "install", "ripgrep"])
 
 def setup_neovim():
     """Copys init.vim to nvim config folder
