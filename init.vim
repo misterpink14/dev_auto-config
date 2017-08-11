@@ -25,8 +25,8 @@ call dein#add('scrooloose/nerdtree',
       \{'on_cmd': 'NERDTreeToggle'})
 call dein#add('Xuyuanp/nerdtree-git-plugin',
       \{'on_cmd': 'NERDTreeToggle'})
-call dein#add('Shougo/deoplete.nvim',
-      \{'on_i': 1})
+call dein#add('Shougo/deoplete.nvim')
+      "\{'on_i': 1})
 call dein#add('mhartington/deoplete-typescript',
       \{'on_ft': ['ts']})
 call dein#add('leafgarland/typescript-vim',
