@@ -25,14 +25,19 @@ call dein#add('scrooloose/nerdtree',
       \{'on_cmd': 'NERDTreeToggle'})
 call dein#add('Xuyuanp/nerdtree-git-plugin',
       \{'on_cmd': 'NERDTreeToggle'})
-call dein#add('Shougo/deoplete.nvim')
-      "\{'on_i': 1})
-call dein#add('mhartington/deoplete-typescript',
-      \{'on_ft': ['ts']})
+"call dein#add('Shougo/deoplete.nvim')
+"call dein#add('mhartington/deoplete-typescript',
+"      \{'on_ft': ['ts']})
+call dein#add('vim-syntastic/syntastic')
+"call dein#add('rust-lang/rust.vim')
+
 call dein#add('leafgarland/typescript-vim',
       \{'on_ft': ['ts']})
 call dein#add('vim-airline/vim-airline')
 call dein#add('vim-airline/vim-airline-themes')
+
+call dein#add('fatih/vim-go',
+      \{'build': ':GoInstallBinaries', 'on_ft': ['go']})
 
 " ----- THEMES -----
 call dein#add('romainl/Apprentice',
@@ -113,10 +118,39 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 set hidden
 
 " ----------- deoplete ---------
-let g:deoplete#enable_at_startup = 1 " Use deoplete.
+"let g:deoplete#enable_at_startup = 1 " Use deoplete.
 
 " ----------- te ----------
 :tnoremap <Esc> <C-\><C-n>
 :tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+
+" ----------- syntastic -----------
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" ----------- rustfmt -----------
+"let g:rustfmt_autosave = 1
+
+" ----------- golang ------------
+set autowrite
+let g:go_list_type = "quickfix"
+let g:go_fmt_command = "goimports"
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_build_constraints = 1
+let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
+let g:go_metalinter_autosave = 1
+let g:go_metalinter_autosave_enabled = ['vet', 'golint']
+let g:go_metalinter_deadline = "5s"
 
 
