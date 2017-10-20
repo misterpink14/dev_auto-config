@@ -49,11 +49,14 @@ if dein#load_state('/Users/benjamint/.local/share/dein')
   "call dein#add('Shougo/neosnippet.vim')
   "call dein#add('Shougo/neosnippet-snippets')
 
-  call dein#add('fatih/vim-go', {'build': ':GoInstallBinaries', 'on_ft': 'go'}) "This was more involved!
-  call dein#add('Shougo/deoplete.nvim')
+  call dein#add('fatih/vim-go', 
+  	\{'build': ':GoInstallBinaries', 'on_ft': 'go'}) "This was more involved!
+  call dein#add('Shougo/deoplete.nvim',
+  	\{'on_i': 1})
   "pip3 install --upgrade neovim
   "pip2 install --upgrade neovim
-  call dein#add('zchee/deoplete-go', {'build': 'make', 'on_ft': 'go'})
+  call dein#add('zchee/deoplete-go', 
+  	\{'build': 'make', 'on_ft': 'go', 'on_i': 1})
 
   " Required:
   call dein#end()
