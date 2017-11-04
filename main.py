@@ -67,6 +67,7 @@ class InitVim():
         self.in_file = "./init.vim"
 
     def copy(self):
+        print("Copying init.vim")
         logging.info("Copying init.vim")
         os.makedirs(os.path.dirname(self.out_file), exist_ok=True)
         with open(self.in_file, "r") as fi:
