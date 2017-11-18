@@ -57,6 +57,10 @@ if dein#load_state('/Users/benjamint/.local/share/dein')
   "pip2 install --upgrade neovim
   call dein#add('zchee/deoplete-go', 
   	\{'build': 'make', 'on_ft': 'go', 'on_i': 1})
+"  call dein#add('clojure-vim/async-clj-omni',
+"	\{'on_ft': 'clj'})
+"  call dein#add('clojure-vim/acid.nvim',
+"  	\{'on_ft': 'clj'})
 
   " Required:
   call dein#end()
