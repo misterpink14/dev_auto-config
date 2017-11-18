@@ -49,10 +49,9 @@ if dein#load_state('/Users/benjamint/.local/share/dein')
   "call dein#add('Shougo/neosnippet.vim')
   "call dein#add('Shougo/neosnippet-snippets')
 
-  call dein#add('fatih/vim-go', 
-  	\{'build': ':GoInstallBinaries', 'on_ft': 'go'}) "This was more involved!
-  call dein#add('Shougo/deoplete.nvim',
-  	\{'on_i': 1})
+  call dein#add('fatih/vim-go', {'build': ':GoInstallBinaries', 'on_ft': 'go'})
+  call dein#add('Shougo/deoplete.nvim')
+  "pip3 install neovim
   "pip3 install --upgrade neovim
   "pip2 install --upgrade neovim
   call dein#add('zchee/deoplete-go', 
@@ -61,6 +60,7 @@ if dein#load_state('/Users/benjamint/.local/share/dein')
 "	\{'on_ft': 'clj'})
 "  call dein#add('clojure-vim/acid.nvim',
 "  	\{'on_ft': 'clj'})
+  call dein#add('zchee/deoplete-go', {'build': 'make', 'on_ft': 'go'})
 
   " Required:
   call dein#end()
