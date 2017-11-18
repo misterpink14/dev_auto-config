@@ -32,10 +32,11 @@ INSTALL_NEOVIM = "brew install neovim/neovim/neovim"
 
 class Dependency():
     """Class for installing / updating dependencies"""
-    def __init__(self, name: str, install_command: str, update_command: str):
+    def __init__(self, name: str, install_command: str, update_command: str, check_install_cmd: str=None):
         self.name = name
         self.install_command = install_command
         self.update_command = update_command
+        self.check_install_command = check_install_command
 
     def _execute(self, command, command_verb):
         logging.info(' '.join([command_verb, self.name]))
@@ -54,9 +55,11 @@ class Dependency():
         update_dep = dependency['update'] if 'install' in dependency else ''
         return Dependency(name, dependency['install'], dependency['update'])
 
-    @staticmethod
-    def is_installed(dependency: str):
-        return subprocess.call(["which", dependency]) == 0
+    def is_installed(self, dependency: str):
+        if self.check_install_command:
+            return self._execute(self.check_install_command, "checking")
+        else:
+            return subprocess.call(["which", self.name]) == 0 # TODO: replace with _execute
 
 class InitVim():
 
@@ -90,7 +93,10 @@ def handle_basic_dependencies():
 def install_dependencies(dependencies):
     for name in dependencies:
         dep = Dependency.dependency_from_dict(dependencies[name])
-        dep.install()
+        if dep.is_installed():
+            dep.update()
+        else:
+            dep.install()
 
 def main(args, dependencies):
     if args.vim:
@@ -114,6 +120,8 @@ def parse_config(is_neovim: bool=True, is_homebrew: bool=True):
 
     #if not is_neovim:
         # Bash Profile only or both
+
+        # if is_work: # append .work_profile source to .bash_profile
 
     return dependencies
 
