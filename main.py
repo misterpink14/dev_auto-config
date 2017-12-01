@@ -67,7 +67,7 @@ class InitVim():
         # TODO: move this into the config.ini
         user_home = os.path.expanduser("~")
         self.out_file = user_home + "/.config/nvim/init.vim"
-        self.in_file = "./init.vim"
+        self.in_file = "./templates/init.vim"
 
     def copy(self):
         print("Copying init.vim")
