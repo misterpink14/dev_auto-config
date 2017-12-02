@@ -28,6 +28,21 @@ noremap <Down> <NOP>
 noremap <Left> <NOP>
 noremap <Right> <NOP>
 
+" ----------- netrw -----------
+let g:netrw_liststyle = 3
+let g:netrw_banner = 0
+"1 - open files in a new horizontal split
+"2 - open files in a new vertical split
+"3 - open files in a new tab
+"4 - open in previous window
+let g:netrw_browse_split = 0
+let g:netrw_winsize = 20
+let g:netrw_altv = 1
+"augroup ProjectDrawer
+"  autocmd!
+"  autocmd VimEnter * :Vexplore
+"augroup END
+
 
 "dein Scripts-----------------------------
 if &compatible
