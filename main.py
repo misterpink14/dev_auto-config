@@ -19,10 +19,13 @@ definite must haves:
 '''
 
 import os
+import pwd
 import subprocess
 import argparse
 import configparser
 import logging
+
+from string import Template
 
 INSTALL_HOMEBREW = """/usr/bin/ruby -e $(curl -fsSL \
 https://raw.githubusercontent.com/Homebrew/install/master/install)"""
@@ -32,7 +35,7 @@ INSTALL_NEOVIM = "brew install neovim/neovim/neovim"
 
 class Dependency():
     """Class for installing / updating dependencies"""
-    def __init__(self, name: str, install_command: str, update_command: str, check_install_cmd: str=None):
+    def __init__(self, name: str, install_command: str, update_command: str, check_install_command: str=None):
         self.name = name
         self.install_command = install_command
         self.update_command = update_command
@@ -48,18 +51,18 @@ class Dependency():
 
     def update(self):
         self._execute(self.update_command, "updating")
+    
+    def is_installed(self):
+        if self.check_install_command:
+            return self._execute(self.check_install_command, "checking")
+        else:
+            return subprocess.call(["which", self.name]) == 0 # TODO: replace with _execute
 
     @staticmethod
     def dependency_from_dict(dependency: dict):
         install_dep = dependency['install'] if 'install' in dependency else ''
         update_dep = dependency['update'] if 'install' in dependency else ''
         return Dependency(name, dependency['install'], dependency['update'])
-
-    def is_installed(self, dependency: str):
-        if self.check_install_command:
-            return self._execute(self.check_install_command, "checking")
-        else:
-            return subprocess.call(["which", self.name]) == 0 # TODO: replace with _execute
 
 class InitVim():
 
@@ -74,22 +77,26 @@ class InitVim():
         logging.info("Copying init.vim")
         os.makedirs(os.path.dirname(self.out_file), exist_ok=True)
         with open(self.in_file, "r") as fi:
+            init_vim = Template(fi.read()).safe_substitute(user=get_user())
             with open(self.out_file, "w") as fo:
-                fo.write(fi.read())
+                fo.write(init_vim)
 
 def handle_basic_dependencies():
     '''homebrew and neovim will always be either installed or updated'''
     try:
-        dep = Dependency("homebrew", INSTALL_HOMEBREW, UPDATE_HOMEBREW)
-        if Dependency.is_installed("brew"):
+        dep = Dependency("brew", INSTALL_HOMEBREW, UPDATE_HOMEBREW)
+        n_dep = Dependency("nvim", INSTALL_NEOVIM, [])
+        if dep.is_installed():
             dep.update()
         else:
             dep.install()
-        if not Dependency.is_installed("nvim"): 
-            n_dep = Dependency("neovim", INSTALL_NEOVIM, [])
+        if not n_dep.is_installed(): 
             n_dep.install()
     except Exception as e:
         logging.error("Error installing basic dependencies, possible network error", e)
+
+def get_user():
+    return pwd.getpwuid( os.getuid() )[ 0 ]
 
 def install_dependencies(dependencies):
     for name in dependencies:
