@@ -9,8 +9,13 @@ TODO:
         [] https://github.com/Shougo/denite.nvim
     [] add comments
     [] clean up a bit
-    [] add a check for vim-plug
     [] additional plugin requirements
+    [] homebrew
+    [] neovim
+    [] dein
+    [] bash_profile
+    [] iterm
+    [] ssh forwarding
 
 
 definite must haves:
@@ -68,8 +73,8 @@ class InitVim():
 
     def __init__(self):
         # TODO: move this into the config.ini
-        user_home = os.path.expanduser("~")
-        self.out_file = user_home + "/.config/nvim/init.vim"
+        self.userhome = os.path.expanduser("~")
+        self.out_file = self.userhome + "/.config/nvim/init.vim"
         self.in_file = "./templates/init.vim"
 
     def copy(self):
@@ -77,7 +82,7 @@ class InitVim():
         logging.info("Copying init.vim")
         os.makedirs(os.path.dirname(self.out_file), exist_ok=True)
         with open(self.in_file, "r") as fi:
-            init_vim = Template(fi.read()).safe_substitute(user=get_user())
+            init_vim = Template(fi.read()).safe_substitute(userhome=self.userhome)
             with open(self.out_file, "w") as fo:
                 fo.write(init_vim)
 
@@ -94,9 +99,6 @@ def handle_basic_dependencies():
             n_dep.install()
     except Exception as e:
         logging.error("Error installing basic dependencies, possible network error", e)
-
-def get_user():
-    return pwd.getpwuid( os.getuid() )[ 0 ]
 
 def install_dependencies(dependencies):
     for name in dependencies:
