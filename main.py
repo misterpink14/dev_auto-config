@@ -27,7 +27,7 @@ import os
 import pwd
 import subprocess
 import argparse
-import configparser
+import json
 import logging
 
 from string import Template
@@ -36,6 +36,8 @@ INSTALL_HOMEBREW = """/usr/bin/ruby -e $(curl -fsSL \
 https://raw.githubusercontent.com/Homebrew/install/master/install)"""
 UPDATE_HOMEBREW = "brew upgrade && brew upgrade"
 INSTALL_NEOVIM = "brew install neovim/neovim/neovim"
+
+CONFIG = {}
 
 
 class Dependency():
@@ -60,21 +62,17 @@ class Dependency():
     def is_installed(self):
         if self.check_install_command:
             return self._execute(self.check_install_command, "checking")
-        else:
+        elif self.name:
             return subprocess.call(["which", self.name]) == 0 # TODO: replace with _execute
-
-    @staticmethod
-    def dependency_from_dict(dependency: dict):
-        install_dep = dependency['install'] if 'install' in dependency else ''
-        update_dep = dependency['update'] if 'install' in dependency else ''
-        return Dependency(name, dependency['install'], dependency['update'])
+        else:
+            return False
 
 class InitVim():
 
     def __init__(self):
         # TODO: move this into the config.ini
         self.userhome = os.path.expanduser("~")
-        self.out_file = self.userhome + "/.config/nvim/init.vim"
+        self.out_file = ''.join([self.userhome, "/",  CONFIG["paths"]["init.vim"]]) 
         self.in_file = "./templates/init.vim"
 
     def copy(self):
@@ -98,42 +96,44 @@ def handle_basic_dependencies():
         if not n_dep.is_installed(): 
             n_dep.install()
     except Exception as e:
-        logging.error("Error installing basic dependencies, possible network error", e)
+        logging.error("Error installing breq and neovim, possible network error", e)
 
-def install_dependencies(dependencies):
-    for name in dependencies:
-        dep = Dependency.dependency_from_dict(dependencies[name])
-        if dep.is_installed():
-            dep.update()
-        else:
-            dep.install()
+def install_dependency(dependency):
+    if dependency.is_installed():
+        dependency.update()
+    else:
+        dependency.install()
 
 def main(args, dependencies):
+    print(dependencies)
     if args.vim:
         InitVim().copy()
     else:
         handle_basic_dependencies()
-        install_dependencies(dependencies)
+        #install_dependency(dependencies)
         InitVim().copy()
         print(args)
 
 def parse_config(is_neovim: bool=True, is_homebrew: bool=True):
-    config = configparser.ConfigParser()
-    dependencies = {}
+    check = lambda k, d: d[k] if k in d else ""
+    
+    with open("./config.json") as f:
+        config = json.load(f)
+        
+        CONFIG["paths"] = config["paths"]
+        print(config)
 
-    conf = config.read('config.ini')
-    if not is_homebrew:
-        # Neovim only or both
-        for key in conf['Dependencies']['Neovim']:
-            dependencies[key] = conf['Dependencies']['Neovim']
-            #if 'type' in conf['Dependencies']['Neovim'][key]:
+        if is_neovim:
+            # Neovim only or both
+            for key in config['dependencies']['neovim']:
 
-    #if not is_neovim:
-        # Bash Profile only or both
-
-        # if is_work: # append .work_profile source to .bash_profile
-
-    return dependencies
+                dep = config['dependencies']['neovim'][key]
+                dependency = Dependency(
+                        check("name", dep), 
+                        check("install", dep), 
+                        check("update", dep),
+                        check("check", dep))
+                install_dependency(dependency)
 
 
 def parse_args():

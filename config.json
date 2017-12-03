@@ -1,0 +1,21 @@
+{
+	"paths": {
+		"init.vim": "config/nvim/init.vim"
+	},
+	"dependencies": {
+		"neovim": {
+			"python3_neovim": {
+				"install": "pip3 install neovim && pip3 install --user neovim && pip2 install --user neovim",
+				"update": "pip3 install --upgrade neovim",
+				"note": "For Shougo's plugins"
+			},
+			"dein": {
+				"install": "mkdir -p ~/.vim/dein/repos/github.com/Shougo/dein.vim && git clone https://github.com/Shougo/dein.vim.git ~/.vim/dein/repos/github.com/Shougo/dein.vim",
+				"update": "git pull ~/.vim/dein/repos/github.com/Shougo/dein.vim",
+				"note": "Neovim package manager"
+			}
+		},
+		"homebrew": {
+		}
+	}
+}
