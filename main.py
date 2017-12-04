@@ -5,17 +5,17 @@ For setting up your development environment
 TODO:
     [] Add these:
         [] https://github.com/Shougo/deoplete.nvim
-        [] https://github.com/Shougo/dein.vim
+        [x] https://github.com/Shougo/dein.vim
         [] https://github.com/Shougo/denite.nvim
     [] add comments
     [] clean up a bit
     [] additional plugin requirements
-    [] homebrew
-    [] neovim
-    [] dein
-    [] bash_profile
+    [x] homebrew
+    [x] neovim
+    [*] bash_profile
     [] iterm
     [] ssh forwarding
+    [] merge bash_profiles
 
 
 definite must haves:
@@ -37,8 +37,6 @@ https://raw.githubusercontent.com/Homebrew/install/master/install)"""
 UPDATE_HOMEBREW = "brew upgrade && brew upgrade"
 INSTALL_NEOVIM = "brew install neovim/neovim/neovim"
 
-CONFIG = {}
-
 
 class Dependency():
     """Class for installing / updating dependencies"""
@@ -51,13 +49,17 @@ class Dependency():
     def _execute(self, command, command_verb):
         logging.info(' '.join([command_verb, self.name]))
         process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True) #TODO: learn how this works
-        process.communicate()
+        _, stderr_data = process.communicate()
+        if stderr_data: 
+            raise Exception("stderr_data")
 
     def install(self):
-        self._execute(self.install_command, "installing")
+        if self.install_command:
+            self._execute(self.install_command, "installing")
 
     def update(self):
-        self._execute(self.update_command, "updating")
+        if self.update_command:
+            self._execute(self.update_command, "updating")
     
     def is_installed(self):
         if self.check_install_command:
@@ -67,17 +69,27 @@ class Dependency():
         else:
             return False
 
-class InitVim():
 
-    def __init__(self):
+class BrewDependency(Dependency):
+    def __init__(self, brew_name: str, name: str=None):
+        if not self.name:
+            name = brew_name
+        install_command = ' '.join(["brew", "install", brew_name])
+        update_command = ' '.join(["brew", "upgrade", brew_name])
+        Dependency.__init__(name, install_command, update_command)
+
+
+class TemplateFile():
+
+    def __init__(self, template_file, out_path):
         # TODO: move this into the config.ini
         self.userhome = os.path.expanduser("~")
-        self.out_file = ''.join([self.userhome, "/",  CONFIG["paths"]["init.vim"]]) 
-        self.in_file = "./templates/init.vim"
+        self.in_file = '/'.join([".", "templates", template_file])
+        self.out_file = ''.join([self.userhome, "/",  out_path]) 
 
     def copy(self):
-        print("Copying init.vim")
-        logging.info("Copying init.vim")
+        print("Copying", self.in_file, "to", self.out_file)
+        logging.info("Copying", self.in_file, "to", self.out_file)
         os.makedirs(os.path.dirname(self.out_file), exist_ok=True)
         with open(self.in_file, "r") as fi:
             init_vim = Template(fi.read()).safe_substitute(userhome=self.userhome)
@@ -98,58 +110,65 @@ def handle_basic_dependencies():
     except Exception as e:
         logging.error("Error installing breq and neovim, possible network error", e)
 
-def install_dependency(dependency):
-    if dependency.is_installed():
-        dependency.update()
-    else:
-        dependency.install()
+def handle_dependency(dependency):
+    try:
+        if not dependency.is_installed():
+            dependency.install()
+            return
+    except:
+        print("Install failed, attempting to update")
+    dependency.update()
 
-def main(args, dependencies):
-    print(dependencies)
-    if args.vim:
-        InitVim().copy()
-    else:
-        handle_basic_dependencies()
-        #install_dependency(dependencies)
-        InitVim().copy()
-        print(args)
-
-def parse_config(is_neovim: bool=True, is_homebrew: bool=True):
+def main(args):
     check = lambda k, d: d[k] if k in d else ""
-    
-    with open("./config.json") as f:
-        config = json.load(f)
-        
-        CONFIG["paths"] = config["paths"]
-        print(config)
-
-        if is_neovim:
-            # Neovim only or both
-            for key in config['dependencies']['neovim']:
-
-                dep = config['dependencies']['neovim'][key]
-                dependency = Dependency(
+    create_dependency = lambda dep: Dependency(
                         check("name", dep), 
                         check("install", dep), 
                         check("update", dep),
                         check("check", dep))
-                install_dependency(dependency)
+    
+    with open("./config.json") as f:
+        config = json.load(f)
+        if args.vim:
+            TemplateFile("init.vim", config["templates"]["init.vim"]).copy()
+        if args.bash_profile:
+            TemplateFile("bash_profile", config["templates"]["bash_profile"]).copy()
+        if args.dependencies:
+            if not args.quick:
+                handle_basic_dependencies(config["paths"])
+            for key in config['dependencies']['neovim']:
+                handle_dependency(create_dependency(config['dependencies']['neovim'][key]))
+            """
+            for key in config['dependencies']['homebrew']:
+                dep = config['dependencies']['homebrew'][key]
+                if isinstance(dep, str): 
+                    dependency = BrewDependency(dep)
+                else:
+                    dependency = BrewDependency(dep["brew_name"], dep["name"])
+            """
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--install', '-i', action="store_true", 
-            help="Use for initial setup to install all dependencies, can limit with -b/-n")
-    parser.add_argument('--update', '-u', action="store_true",
-            help="Use to update all dependencies can limit with -b/-n")
+    parser.add_argument('--quick', '-q', action="store_true",
+            help="Use to skip updating brew and neovim")
     parser.add_argument('--bash_profile', '-b', action="store_true",
-            help="Use to only update your .bash_profile")
-    parser.add_argument('--neovim', '-n', action="store_true",
-            help="Use to only update neovim")
+            help="Use to update .bash_profile (implies quick)")
     parser.add_argument('--vim', '-v', action="store_true",
-            help="Use to only update init.vim")
+            help="Use to update init.vim (implies quick)")
+    parser.add_argument('--dependencies', '-d', action="store_true",
+            help="Use to install dependencies")
+    parser.add_argument("--all", "-a", action="store_true",
+            help="Use to run everything")
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.vim or args.bash_profile:
+        args.quick = True
+    if args.all:
+        args.vim = True
+        args.bash_profile = True
+        args.dependencies = True
+    return args
 
 if __name__ == "__main__":
-    main(parse_args(), parse_config())
+    main(parse_args())

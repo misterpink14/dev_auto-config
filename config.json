@@ -1,12 +1,13 @@
 {
-	"paths": {
-		"init.vim": "config/nvim/init.vim"
+	"templates": {
+		"init.vim": "config/nvim/init.vim",
+		"bash_profile": ".test_bash_file"
 	},
 	"dependencies": {
 		"neovim": {
-			"python3_neovim": {
+			"python_neovim_client": {
 				"install": "pip3 install neovim && pip3 install --user neovim && pip2 install --user neovim",
-				"update": "pip3 install --upgrade neovim",
+				"update": "pip3 install --upgrade neovim && pip2 install --upgrade neovim",
 				"note": "For Shougo's plugins"
 			},
 			"dein": {
@@ -15,7 +16,11 @@
 				"note": "Neovim package manager"
 			}
 		},
-		"homebrew": {
-		}
+		"homebrew": [
+			{
+				"brew_name": "neovim",
+				"name": "nvim"
+			}
+		]
 	}
 }
