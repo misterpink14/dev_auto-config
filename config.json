@@ -1,7 +1,8 @@
 {
 	"templates": {
 		"init.vim": "config/nvim/init.vim",
-		"bash_profile": ".test_bash_file"
+		"bash_profile": ".test_bash_file",
+		"iterm2": ".iterm/preferences/com.googlecode.iterm2.plist"
 	},
 	"dependencies": {
 		"neovim": {
@@ -20,6 +21,10 @@
 			{
 				"brew_name": "neovim",
 				"name": "nvim"
+			}, {
+				"brew_name": "bash-completion",
+				"brew_tap": "homebrew/completions",
+				"name": "bash_completion"
 			}
 		]
 	}

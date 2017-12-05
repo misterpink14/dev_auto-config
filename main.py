@@ -12,8 +12,8 @@ TODO:
     [] additional plugin requirements
     [x] homebrew
     [x] neovim
-    [*] bash_profile
-    [] iterm
+    [x] bash_profile
+    [x] iterm
     [] ssh forwarding
     [] merge bash_profiles
 
@@ -133,6 +133,8 @@ def main(args):
             TemplateFile("init.vim", config["templates"]["init.vim"]).copy()
         if args.bash_profile:
             TemplateFile("bash_profile", config["templates"]["bash_profile"]).copy()
+        if args.iterm:
+            TemplateFile("com.googlecode.iterm2.plist", config["templates"]["iterm2"]).copy()
         if args.dependencies:
             if not args.quick:
                 handle_basic_dependencies(config["paths"])
@@ -156,6 +158,8 @@ def parse_args():
             help="Use to update .bash_profile (implies quick)")
     parser.add_argument('--vim', '-v', action="store_true",
             help="Use to update init.vim (implies quick)")
+    parser.add_argument('--iterm', '-i', action="store_true",
+            help="Use to update iterm preferences (implies quick)")
     parser.add_argument('--dependencies', '-d', action="store_true",
             help="Use to install dependencies")
     parser.add_argument("--all", "-a", action="store_true",
@@ -168,6 +172,7 @@ def parse_args():
         args.vim = True
         args.bash_profile = True
         args.dependencies = True
+        args.iterm = True
     return args
 
 if __name__ == "__main__":
