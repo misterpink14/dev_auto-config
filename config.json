@@ -1,7 +1,7 @@
 {
 	"templates": {
 		"init.vim": "config/nvim/init.vim",
-		"bash_profile": ".test_bash_file",
+		"bash_profile": ".bash_profile",
 		"iterm2": ".iterm/preferences/com.googlecode.iterm2.plist"
 	},
 	"dependencies": {
@@ -18,13 +18,14 @@
 			}
 		},
 		"homebrew": [
+			"go", "icu4c", "bash-git-prompt",
 			{
 				"brew_name": "neovim",
 				"name": "nvim"
 			}, {
 				"brew_name": "bash-completion",
-				"brew_tap": "homebrew/completions",
-				"name": "bash_completion"
+				"name": "bash-completion",
+				"setup": "ln -s \"/usr/local/Library/Contributions/brew_bash_completion.sh\" \"/usr/local/etc/bash_completion.d\""
 			}
 		]
 	}

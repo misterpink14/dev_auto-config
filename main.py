@@ -3,24 +3,12 @@
 For setting up your development environment
 
 TODO:
-    [] Add these:
-        [] https://github.com/Shougo/deoplete.nvim
-        [x] https://github.com/Shougo/dein.vim
-        [] https://github.com/Shougo/denite.nvim
-    [] add comments
-    [] clean up a bit
-    [] additional plugin requirements
-    [x] homebrew
-    [x] neovim
-    [x] bash_profile
-    [x] iterm
-    [] ssh forwarding
-    [] merge bash_profiles
+    [] iterm -- https://gist.github.com/kevin-smets/8568070
+    [] emacs
+    [] emacs dependencies
+    [] additional dependencies 
+        [] <>
 
-
-definite must haves:
-    brew
-    neovim
 '''
 
 import os
@@ -38,7 +26,7 @@ UPDATE_HOMEBREW = "brew upgrade && brew upgrade"
 INSTALL_NEOVIM = "brew install neovim/neovim/neovim"
 
 
-class Dependency():
+class Dependency(object):
     """Class for installing / updating dependencies"""
     def __init__(self, name: str, install_command: str, update_command: str, check_install_command: str=None):
         self.name = name
@@ -71,12 +59,14 @@ class Dependency():
 
 
 class BrewDependency(Dependency):
-    def __init__(self, brew_name: str, name: str=None):
-        if not self.name:
+    def __init__(self, brew_name: str, name: str=None, setup: str=None):
+        if not name:
             name = brew_name
         install_command = ' '.join(["brew", "install", brew_name])
+        if setup:
+            install_command = " && ".join([install_command, setup])
         update_command = ' '.join(["brew", "upgrade", brew_name])
-        Dependency.__init__(name, install_command, update_command)
+        super(BrewDependency, self).__init__(name, install_command, update_command)
 
 
 class TemplateFile():
@@ -96,19 +86,16 @@ class TemplateFile():
             with open(self.out_file, "w") as fo:
                 fo.write(init_vim)
 
-def handle_basic_dependencies():
+def handle_brew():
     '''homebrew and neovim will always be either installed or updated'''
     try:
         dep = Dependency("brew", INSTALL_HOMEBREW, UPDATE_HOMEBREW)
-        n_dep = Dependency("nvim", INSTALL_NEOVIM, [])
         if dep.is_installed():
             dep.update()
         else:
             dep.install()
-        if not n_dep.is_installed(): 
-            n_dep.install()
     except Exception as e:
-        logging.error("Error installing breq and neovim, possible network error", e)
+        logging.error("Error installing brew, possible network error", e)
 
 def handle_dependency(dependency):
     try:
@@ -137,17 +124,16 @@ def main(args):
             TemplateFile("com.googlecode.iterm2.plist", config["templates"]["iterm2"]).copy()
         if args.dependencies:
             if not args.quick:
-                handle_basic_dependencies(config["paths"])
-            for key in config['dependencies']['neovim']:
-                handle_dependency(create_dependency(config['dependencies']['neovim'][key]))
-            """
-            for key in config['dependencies']['homebrew']:
-                dep = config['dependencies']['homebrew'][key]
+                handle_brew()
+            #for key in config['dependencies']['neovim']:
+            #    handle_dependency(create_dependency(config['dependencies']['neovim'][key]))
+            for dep in config['dependencies']['homebrew']:
+                print(dep)
                 if isinstance(dep, str): 
                     dependency = BrewDependency(dep)
                 else:
-                    dependency = BrewDependency(dep["brew_name"], dep["name"])
-            """
+                    dependency = BrewDependency(dep["brew_name"], dep["name"], dep["setup"] if "setup" in dep else None)
+                handle_dependency(dependency)
 
 
 def parse_args():
