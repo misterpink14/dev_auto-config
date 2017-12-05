@@ -1,15 +1,109 @@
-export HB_PATH=/usr/local # Homebrew env path
-export NVM_DIR="$HOME/.nvm" 
-. "$HB_PATH/opt/nvm/nvm.sh" # nvm path
+alias ll='ls -lsaG'
+alias python='python'
+alias vim=nvim # Because neovim is my vim
+alias src="source ~/.bash_profile"
+alias mytmpdir=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`
 
-# Make brew local the default local
-export PATH=$HB_PATH/bin:$HB_PATH/sbin:~/bin:$PATH
+export PATH=~/.local/bin:$PATH
+export PATH="/usr/local/opt/sqlite/bin:$PATH"
+export PATH="/usr/local/opt/icu4c/bin:$PATH"
+export PATH="/usr/local/opt/icu4c/sbin:$PATH"
+export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin" # vscode from terminal
 
 # Syslink for coreutils
-export PATH="$(brew --prefix coreutils)/libexec/gnubin:$HB_PATH/bin:$PATH"
-
+#export PATH="$(brew --prefix coreutils)/libexec/gnubin:$HB_PATH/bin:$PATH"
 # GNU manpages for programs that are GNU ones, and fallback to OSX manpages otherwise
-alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
+#alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
+## Add textinfo to path
+#export PATH="/usr/local/opt/texinfo/bin:$PATH"
+
+# Make brew local the default local
+export HB_PATH=/usr/local # Homebrew env path
+export PATH=$HB_PATH/bin:$HB_PATH/sbin:~/bin:$PATH
+
+# ---------------------------------------------------------
+# TMUX
+# ---------------------------------------------------------
+
+# Get nvim colorscheme working in tmux
+export TERM='xterm-256color' 
+export CLICOLOR=1
+export EDITOR='vim'
+
+# ---------------------------------------------------------
+# DOCKER
+# ---------------------------------------------------------
+
+# Kill all running containers.
+alias dockerkillall='docker kill $(docker ps -q)'
+# Delete all stopped containers.
+alias dockercleanc='printf "\n>>> Deleting stopped containers\n\n" && docker rm $(docker ps -a -q)'
+# Delete all untagged images.
+alias dockercleani='printf "\n>>> Deleting untagged images\n\n" && docker rmi $(docker images -q -f dangling=true)'
+# Delete all stopped containers and untagged images.
+alias dockerclean='dockercleanc || true && dockercleani'
+
+export PS1='[ \w ]\n\$ '
+PATH=$PATH:/usr/local/sbin
+
+
+# ---------------------------------------------------------
+# NODE / NODE VERSION MANAGER
+# ---------------------------------------------------------
+
+export NVM_DIR="$HOME/.nvm"
+  . "/usr/local/opt/nvm/nvm.sh"
+
+# ---------------------------------------------------------
+# GOLANG
+# ---------------------------------------------------------
+
+export GOPATH=$HOME/go
+export PATH="$GOPATH/bin:$PATH"
+
+# ---------------------------------------------------------
+# SSH
+# ---------------------------------------------------------
+
+## Call the agent script to source the key
+ alias agent='re-source_ssh_agent'
+ 
+ ## Used to re-source your key if the agent expired
+ function re-source_ssh_agent(){
+     rm -f "$HOME"/.ssh/`hostname`.agent
+     ssh-agent -t 28800 > "$HOME"/.ssh/`hostname`.agent
+     source "$HOME"/.ssh/`hostname`.agent
+     ssh-add
+ }
+ 
+ ## SSH agent script
+ if [ -e "$HOME"/.ssh/`hostname`.agent ]
+ then
+     source "$HOME"/.ssh/`hostname`.agent
+ fi
+ ssh-add -l 2>&1 > /dev/null
+ ident=$?
+ if [ $ident -ne 0 ]
+ then
+     ssh-add
+     ident=$?
+     if [ $ident -ne 0 ]
+     then
+         re-source_ssh_agent
+     fi
+ fi
+
+# ---------------------------------------------------------
+# NEEDED FOR EMACS DEPENDENCIES
+# ---------------------------------------------------------
+
+## To use gnu commands with their normal names
+PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH"
+
+# ---------------------------------------------------------
+# BASH
+# ---------------------------------------------------------
 
 # Auto-complete for bash
 [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
@@ -20,20 +114,10 @@ if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
   source "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
 fi
 
-# --files: List files that would be searched but do not search
-# --no-ignore: Do not respect .gitignore, etc...
-# --hidden: Search hidden files and folders
-# --follow: Follow symlinks
-# --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
+# ---------------------------------------------------------
+# QUALTRICS PROFILE
+# ---------------------------------------------------------
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-
-source ~/.profile
-
-export GOPATH=$HOME/Development/learning
-export PATH=$PATH:$GOPATH/bin
-
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$PATH:/path/to/elixir/bin"
+# source ~/.profile
+source ~/.qualtrics_profile
 
