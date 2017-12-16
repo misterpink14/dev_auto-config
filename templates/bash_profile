@@ -10,6 +10,8 @@ export PATH="/usr/local/opt/icu4c/bin:$PATH"
 export PATH="/usr/local/opt/icu4c/sbin:$PATH"
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin" # vscode from terminal
 
+export VIMRUNTIME="$(nvim -e --cmd 'echo $VIMRUNTIME|quit' 2>&1)"
+
 # Syslink for coreutils
 #export PATH="$(brew --prefix coreutils)/libexec/gnubin:$HB_PATH/bin:$PATH"
 # GNU manpages for programs that are GNU ones, and fallback to OSX manpages otherwise

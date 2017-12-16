@@ -21,6 +21,12 @@ set number              " Show the line numbers on the left side.
 set linespace=0         " Set line-spacing to minimum.
 set showcmd             " Show command in bottom bar
 set mouse=a             " Select text without line numbers
+set number relativenumber
+augroup numbertoggle " Auto-toggle 
+	autocmd!
+	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+	autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+augroup END
 
 " ----------- Disable arrow key navigation -----------
 noremap <Up> <NOP>
@@ -37,7 +43,7 @@ let g:netrw_banner = 0
 "4 - open in previous window
 let g:netrw_browse_split = 0
 let g:netrw_winsize = 20
-let g:netrw_altv = 1
+"let g:netrw_altv = 1
 "augroup ProjectDrawer
 "  autocmd!
 "  autocmd VimEnter * :Vexplore
@@ -71,11 +77,14 @@ if dein#load_state('$userhome/.local/share/dein')
   "pip2 install --upgrade neovim
   call dein#add('zchee/deoplete-go', 
   	\{'build': 'make', 'on_ft': 'go', 'on_i': 1})
+"  call dein#add('mhartington/nvim-typescript',
+"  	\{'on_ft': 'ts', 'on_i': 1})
+  call dein#add('leafgarland/typescript-vim',
+  	\{'on_ft': 'ts'})
 "  call dein#add('clojure-vim/async-clj-omni',
 "	\{'on_ft': 'clj'})
 "  call dein#add('clojure-vim/acid.nvim',
 "  	\{'on_ft': 'clj'})
-  call dein#add('zchee/deoplete-go', {'build': 'make', 'on_ft': 'go'})
 
   " Required:
   call dein#end()
