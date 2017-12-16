@@ -1,6 +1,6 @@
 {
 	"templates": {
-		"init.vim": "config/nvim/init.vim",
+		"init.vim": ".config/nvim/init.vim",
 		"bash_profile": ".bash_profile",
 		"iterm2": ".iterm/preferences/com.googlecode.iterm2.plist"
 	},
@@ -17,16 +17,23 @@
 				"note": "Neovim package manager"
 			}
 		},
-		"homebrew": [
-			"go", "icu4c", "bash-git-prompt",
-			{
-				"brew_name": "neovim",
-				"name": "nvim"
-			}, {
-				"brew_name": "bash-completion",
-				"name": "bash-completion",
-				"setup": "ln -s \"/usr/local/Library/Contributions/brew_bash_completion.sh\" \"/usr/local/etc/bash_completion.d\""
-			}
-		]
+		"homebrew": {
+			"taps": [
+				"go", "icu4c", "bash-git-prompt",
+				{
+					"brew_name": "neovim",
+					"name": "nvim"
+				}, {
+					"brew_name": "leiningen",
+					"name": "lein"
+				}, {
+					"brew_name": "bash-completion",
+					"name": "bash-completion",
+					"setup": "ln -s \"/usr/local/Library/Contributions/brew_bash_completion.sh\" \"/usr/local/etc/bash_completion.d\""
+				}
+			],
+			"cask": [
+			]
+		}
 	}
 }

@@ -7,8 +7,6 @@ TODO:
     [] emacs
     [] emacs dependencies
     [] additional dependencies 
-        [] <>
-
 '''
 
 import os
@@ -19,11 +17,6 @@ import json
 import logging
 
 from string import Template
-
-INSTALL_HOMEBREW = """/usr/bin/ruby -e $(curl -fsSL \
-https://raw.githubusercontent.com/Homebrew/install/master/install)"""
-UPDATE_HOMEBREW = "brew upgrade && brew upgrade"
-INSTALL_NEOVIM = "brew install neovim/neovim/neovim"
 
 
 class Dependency(object):
@@ -87,9 +80,12 @@ class TemplateFile():
                 fo.write(init_vim)
 
 def handle_brew():
-    '''homebrew and neovim will always be either installed or updated'''
+    '''homebrew will always be either installed or updated'''
     try:
-        dep = Dependency("brew", INSTALL_HOMEBREW, UPDATE_HOMEBREW)
+        dep = Dependency(
+            "brew", 
+            "/usr/bin/ruby -e $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)",
+            "brew upgrade && brew upgrade")
         if dep.is_installed():
             dep.update()
         else:
@@ -125,15 +121,20 @@ def main(args):
         if args.dependencies:
             if not args.quick:
                 handle_brew()
-            #for key in config['dependencies']['neovim']:
-            #    handle_dependency(create_dependency(config['dependencies']['neovim'][key]))
-            for dep in config['dependencies']['homebrew']:
-                print(dep)
-                if isinstance(dep, str): 
-                    dependency = BrewDependency(dep)
-                else:
-                    dependency = BrewDependency(dep["brew_name"], dep["name"], dep["setup"] if "setup" in dep else None)
-                handle_dependency(dependency)
+            for key in config['dependencies']['neovim']:
+                handle_dependency(create_dependency(config['dependencies']['neovim'][key]))
+            if 'homebrew' in config['dependencies']:
+                if 'taps' in config['dependencies']['homebrew']:
+                    for dep in config['dependencies']['homebrew']['taps']:
+                        print(dep)
+                        if isinstance(dep, str): 
+                            dependency = BrewDependency(dep)
+                        else:
+                            dependency = BrewDependency(dep["brew_name"], dep["name"], dep["setup"] if "setup" in dep else None)
+                        handle_dependency(dependency)
+                if 'casks' in config['dependencies']['homebrew']:
+                    for cask in config['dependencies']['homebrew']['casks']:
+                        print(cask)
 
 
 def parse_args():
