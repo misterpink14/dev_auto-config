@@ -1,85 +1,16 @@
 #/usr/local/bin/python3
-'''
-For setting up your development environment
-
-TODO:
-    [] iterm -- https://gist.github.com/kevin-smets/8568070
-    [] emacs
-    [] emacs dependencies
-    [] additional dependencies 
-'''
-
-import os
-import pwd
-import subprocess
-import argparse
+import sys
 import json
 import logging
+import argparse
 
-from string import Template
+from typing import Dict, List, Optional
 
+from config import Config
+from template import TemplateFile
+from dependency import Dependency, BrewDependency
 
-class Dependency(object):
-    """Class for installing / updating dependencies"""
-    def __init__(self, name: str, install_command: str, update_command: str, check_install_command: str=None):
-        self.name = name
-        self.install_command = install_command
-        self.update_command = update_command
-        self.check_install_command = check_install_command
-
-    def _execute(self, command, command_verb):
-        logging.info(' '.join([command_verb, self.name]))
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True) #TODO: learn how this works
-        _, stderr_data = process.communicate()
-        if stderr_data: 
-            raise Exception("stderr_data")
-
-    def install(self):
-        if self.install_command:
-            self._execute(self.install_command, "installing")
-
-    def update(self):
-        if self.update_command:
-            self._execute(self.update_command, "updating")
-    
-    def is_installed(self):
-        if self.check_install_command:
-            return self._execute(self.check_install_command, "checking")
-        elif self.name:
-            return subprocess.call(["which", self.name]) == 0 # TODO: replace with _execute
-        else:
-            return False
-
-
-class BrewDependency(Dependency):
-    def __init__(self, brew_name: str, name: str=None, setup: str=None):
-        if not name:
-            name = brew_name
-        install_command = ' '.join(["brew", "install", brew_name])
-        if setup:
-            install_command = " && ".join([install_command, setup])
-        update_command = ' '.join(["brew", "upgrade", brew_name])
-        super(BrewDependency, self).__init__(name, install_command, update_command)
-
-
-class TemplateFile():
-
-    def __init__(self, template_file, out_path):
-        # TODO: move this into the config.ini
-        self.userhome = os.path.expanduser("~")
-        self.in_file = '/'.join([".", "templates", template_file])
-        self.out_file = ''.join([self.userhome, "/",  out_path]) 
-
-    def copy(self):
-        print("Copying", self.in_file, "to", self.out_file)
-        logging.info("Copying", self.in_file, "to", self.out_file)
-        os.makedirs(os.path.dirname(self.out_file), exist_ok=True)
-        with open(self.in_file, "r") as fi:
-            init_vim = Template(fi.read()).safe_substitute(userhome=self.userhome)
-            with open(self.out_file, "w") as fo:
-                fo.write(init_vim)
-
-def handle_brew():
+def brew():
     '''homebrew will always be either installed or updated'''
     try:
         dep = Dependency(
@@ -110,57 +41,59 @@ def main(args):
                         check("update", dep),
                         check("check", dep))
     
-    with open("./config.json") as f:
-        config = json.load(f)
-        if args.vim:
-            TemplateFile("init.vim", config["templates"]["init.vim"]).copy()
-        if args.bash_profile:
-            TemplateFile("bash_profile", config["templates"]["bash_profile"]).copy()
-        if args.iterm:
-            TemplateFile("com.googlecode.iterm2.plist", config["templates"]["iterm2"]).copy()
-        if args.dependencies:
-            if not args.quick:
-                handle_brew()
-            for key in config['dependencies']['neovim']:
-                handle_dependency(create_dependency(config['dependencies']['neovim'][key]))
-            if 'homebrew' in config['dependencies']:
-                if 'taps' in config['dependencies']['homebrew']:
-                    for dep in config['dependencies']['homebrew']['taps']:
-                        print(dep)
-                        if isinstance(dep, str): 
-                            dependency = BrewDependency(dep)
-                        else:
-                            dependency = BrewDependency(dep["brew_name"], dep["name"], dep["setup"] if "setup" in dep else None)
-                        handle_dependency(dependency)
-                if 'casks' in config['dependencies']['homebrew']:
-                    for cask in config['dependencies']['homebrew']['casks']:
-                        print(cask)
+    config = Config.load()
 
+    if args.vim:
+        TemplateFile("init.vim", config.templates["init.vim"]).copy()
+    if args.bash_profile:
+        TemplateFile("bash_profile", config.templates["bash_profile"]).copy()
+    if args.iterm:
+        TemplateFile("com.googlecode.iterm2.plist", config.templates["iterm2"]).copy()
+    if args.dependencies:
+        if not args.quick:
+            brew()
+        if config.dependencies:
+            logging.info("-- Installing Dependencies")
+            for name, dep in config.dependencies.items():
+                logging.info("---- Installing", name)
+                handle_dependency(create_dependency(dep))
+        if config.homebrew:
+            if 'dependencies' in config.homebrew:
+                logging.info("-- Installing Homebrew Dependencies")
+                for dep in config.homebrew['dependencies']:
+                    if isinstance(dep, str): 
+                        dependency = BrewDependency(dep)
+                    else:
+                        dependency = BrewDependency(
+                                dep["brew_name"], 
+                                dep["name"], 
+                                dep["setup"] if "setup" in dep else None)
+                    handle_dependency(dependency)
 
-def parse_args():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--quick', '-q', action="store_true",
-            help="Use to skip updating brew and neovim")
+            help="Use to skip updating brew")
     parser.add_argument('--bash_profile', '-b', action="store_true",
-            help="Use to update .bash_profile (implies quick)")
+            help="Use to update .bash_profile")
     parser.add_argument('--vim', '-v', action="store_true",
-            help="Use to update init.vim (implies quick)")
+            help="Use to update init.vim")
     parser.add_argument('--iterm', '-i', action="store_true",
-            help="Use to update iterm preferences (implies quick)")
+            help="Use to update iterm preferences")
     parser.add_argument('--dependencies', '-d', action="store_true",
             help="Use to install dependencies")
     parser.add_argument("--all", "-a", action="store_true",
-            help="Use to run everything")
+            help="Use to run everything. (optional) Equivalent to no args")
 
     args = parser.parse_args()
-    if args.vim or args.bash_profile:
+    if not len(sys.argv) > 1:
+        args.all = True
+    if True in [args.vim, args.bash_profile, args.iterm, args.dependencies,]:
         args.quick = True
     if args.all:
         args.vim = True
         args.bash_profile = True
         args.dependencies = True
         args.iterm = True
-    return args
 
-if __name__ == "__main__":
-    main(parse_args())
+    main(args)

@@ -5,35 +5,45 @@
 		"iterm2": ".iterm/preferences/com.googlecode.iterm2.plist"
 	},
 	"dependencies": {
-		"neovim": {
-			"python_neovim_client": {
-				"install": "pip3 install neovim && pip3 install --user neovim && pip2 install --user neovim",
-				"update": "pip3 install --upgrade neovim && pip2 install --upgrade neovim",
-				"note": "For Shougo's plugins"
-			},
-			"dein": {
-				"install": "mkdir -p ~/.vim/dein/repos/github.com/Shougo/dein.vim && git clone https://github.com/Shougo/dein.vim.git ~/.vim/dein/repos/github.com/Shougo/dein.vim",
-				"update": "git pull ~/.vim/dein/repos/github.com/Shougo/dein.vim",
-				"note": "Neovim package manager"
-			}
+		"python_neovim_client": {
+			"install": [
+                "pip3 install neovim",
+                "pip3 install --user neovim",
+                "pip2 install --user neovim"
+            ],
+			"update": [
+                "pip3 install --upgrade neovim",
+                "pip2 install --upgrade neovim"
+            ],
+			"note": "Python dependencies for neovim plugins (Shougo, etc)"
 		},
-		"homebrew": {
-			"taps": [
-				"go", "icu4c", "bash-git-prompt",
-				{
-					"brew_name": "neovim",
-					"name": "nvim"
-				}, {
-					"brew_name": "leiningen",
-					"name": "lein"
-				}, {
-					"brew_name": "bash-completion",
-					"name": "bash-completion",
-					"setup": "ln -s \"/usr/local/Library/Contributions/brew_bash_completion.sh\" \"/usr/local/etc/bash_completion.d\""
-				}
-			],
-			"cask": [
-			]
+		"dein": {
+			"install": [
+                "mkdir -p ~/.vim/dein/repos/github.com/Shougo/dein.vim",
+                "git clone https://github.com/Shougo/dein.vim.git ~/.vim/dein/repos/github.com/Shougo/dein.vim"
+            ],
+			"update": "git pull ~/.vim/dein/repos/github.com/Shougo/dein.vim",
+			"note": "Neovim dark async package manager"
 		}
+    },
+	"homebrew": {
+        "dependencies": [
+		    "go", "icu4c", "bash-git-prompt",
+			{
+				"brew_name": "neovim",
+				"name": "nvim"
+			}, {
+				"brew_name": "leiningen",
+				"name": "lein"
+			}, {
+				"brew_name": "bash-completion",
+				"name": "bash-completion",
+				"setup": "ln -s \"/usr/local/Library/Contributions/brew_bash_completion.sh\" \"/usr/local/etc/bash_completion.d\""
+			}
+		],
+		"taps": [
+		],
+		"casks": [
+		]
 	}
 }
