@@ -9,6 +9,7 @@ from typing import Dict, List, Optional
 from config import Config
 from template import TemplateFile
 from dependency import Dependency, BrewDependency
+from util import as_list
 
 def brew():
     '''homebrew will always be either installed or updated'''
@@ -23,6 +24,16 @@ def brew():
             dep.install()
     except Exception as e:
         logging.error("Error installing brew, possible network error", e)
+
+def copy_templates(template_configs: List[Dict[str, str]]):
+    for template_config in template_configs:
+        try:
+            name = template_config['name']
+            path = template_config['path']
+            TemplateFile(name, path).copy()
+        except Exception as e:
+            logging.error("Failed to copy template:", e)
+            raise e
 
 def handle_dependency(dependency):
     try:
@@ -40,15 +51,10 @@ def main(args):
                         check("install", dep), 
                         check("update", dep),
                         check("check", dep))
-    
     config = Config.load()
 
-    if args.vim:
-        TemplateFile("init.vim", config.templates["init.vim"]).copy()
-    if args.bash_profile:
-        TemplateFile("bash_profile", config.templates["bash_profile"]).copy()
-    if args.iterm:
-        TemplateFile("com.googlecode.iterm2.plist", config.templates["iterm2"]).copy()
+    if args.templates:
+        copy_templates(config.templates)
     if args.dependencies:
         if not args.quick:
             brew()
@@ -74,26 +80,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--quick', '-q', action="store_true",
             help="Use to skip updating brew")
-    parser.add_argument('--bash_profile', '-b', action="store_true",
-            help="Use to update .bash_profile")
-    parser.add_argument('--vim', '-v', action="store_true",
-            help="Use to update init.vim")
-    parser.add_argument('--iterm', '-i', action="store_true",
-            help="Use to update iterm preferences")
+    parser.add_argument('--templates', '-t', action="store_true",
+            help="Use to copy templates (implies quick)")
     parser.add_argument('--dependencies', '-d', action="store_true",
             help="Use to install dependencies")
     parser.add_argument("--all", "-a", action="store_true",
-            help="Use to run everything. (optional) Equivalent to no args")
+            help="Use to run everything. Equivalent to ommitting args")
 
     args = parser.parse_args()
     if not len(sys.argv) > 1:
         args.all = True
-    if True in [args.vim, args.bash_profile, args.iterm, args.dependencies,]:
+    if args.templates:
         args.quick = True
     if args.all:
-        args.vim = True
-        args.bash_profile = True
+        args.templates = True
         args.dependencies = True
-        args.iterm = True
 
     main(args)

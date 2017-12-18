@@ -1,9 +1,22 @@
 {
-	"templates": {
-		"init.vim": ".config/nvim/init.vim",
-		"bash_profile": ".bash_profile",
-		"iterm2": ".iterm/preferences/com.googlecode.iterm2.plist"
-	},
+	"templates": [
+		{
+			"name": "init.vim",
+			"path": ".config/nvim/init.vim"
+		},
+		{
+			"name": "vimrc",
+			"path": ".vimrc"
+		},
+		{
+			"name": "bash_profile",
+			"path": ".bash_profile"
+		},
+		{
+			"name": "com.googlecode.iterm2.plist", 
+			"path": ".iterm/preferences/com.googlecode.iterm2.plist"
+		}
+	],
 	"dependencies": {
 		"python_neovim_client": {
 			"install": [

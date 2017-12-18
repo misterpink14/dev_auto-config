@@ -5,8 +5,7 @@ from string import Template
 
 class TemplateFile():
 
-    def __init__(self, template_file, out_path):
-        # TODO: move this into the config.ini
+    def __init__(self, template_file: str, out_path:str):
         self.userhome = os.path.expanduser("~")
         self.in_file = '/'.join([".", "templates", template_file])
         self.out_file = ''.join([self.userhome, "/",  out_path]) 
