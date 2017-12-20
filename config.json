@@ -17,8 +17,9 @@
 			"path": ".iterm/preferences/com.googlecode.iterm2.plist"
 		}
 	],
-	"dependencies": {
-		"python_neovim_client": {
+	"dependencies": [
+		{
+			"name": "neovim_python",
 			"install": [
                 "pip3 install neovim",
                 "pip3 install --user neovim",
@@ -30,7 +31,8 @@
             ],
 			"note": "Python dependencies for neovim plugins (Shougo, etc)"
 		},
-		"dein": {
+		{
+			"name": "dein",
 			"install": [
                 "mkdir -p ~/.vim/dein/repos/github.com/Shougo/dein.vim",
                 "git clone https://github.com/Shougo/dein.vim.git ~/.vim/dein/repos/github.com/Shougo/dein.vim"
@@ -38,7 +40,7 @@
 			"update": "git pull ~/.vim/dein/repos/github.com/Shougo/dein.vim",
 			"note": "Neovim dark async package manager"
 		}
-    },
+    ],
 	"homebrew": {
         "dependencies": [
 		    "go", "icu4c", "bash-git-prompt",

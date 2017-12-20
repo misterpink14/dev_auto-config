@@ -7,7 +7,11 @@ from util import get_command
 
 class Dependency(object):
     """Class for installing / updating dependencies"""
-    def __init__(self, name: str, install_command, update_command: str or List[str], check_install_command: str=None):
+    def __init__(self, 
+            name: str, 
+            install_command: str or List[str], 
+            update_command: str or List[str], 
+            check_install_command: str=None):
         self.name = name
         self.install_command = get_command(install_command)
         self.update_command = get_command(update_command)

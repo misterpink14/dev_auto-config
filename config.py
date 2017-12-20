@@ -14,7 +14,7 @@ class Config:
     def __init__(self, 
             templates: List[str or Dict[str, str or List[str]]], 
             dependencies: List[str or Dict[str, str or List[str]]],
-            homebrew: BrewConfig):
+            homebrew):
         self.templates = templates
         self.dependencies = dependencies
         self.homebrew = homebrew

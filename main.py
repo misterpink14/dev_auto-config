@@ -9,10 +9,9 @@ from typing import Dict, List, Optional
 from config import Config
 from template import TemplateFile
 from dependency import Dependency, BrewDependency
-from util import as_list
+from util import as_list, check_in_dict_failback
 
-def brew():
-    '''homebrew will always be either installed or updated'''
+def install_brew():
     try:
         dep = Dependency(
             "brew", 
@@ -41,40 +40,44 @@ def handle_dependency(dependency):
             dependency.install()
             return
     except:
-        print("Install failed, attempting to update")
-    dependency.update()
+        logging.warn("Install failed, attempting to update", dependency.name) 
+        try:
+            dependency.update()
+        except:
+            logging.error("Failed to install dependency:", dependency)
 
-def main(args):
-    check = lambda k, d: d[k] if k in d else ""
-    create_dependency = lambda dep: Dependency(
-                        check("name", dep), 
-                        check("install", dep), 
-                        check("update", dep),
-                        check("check", dep))
-    config = Config.load()
+def handle_dependencies(dependencies_config: List[Dict[str, List[str] or str]]):
+    for dep in dependencies_config:
+        dependency = Dependency(
+            dep["name"],
+            check_in_dict_failback("install", dep, None),
+            check_in_dict_failback("update", dep, None),
+            check_in_dict_failback("check", dep, None))
+        handle_dependency(dependency)
 
+def handle_homebrew(homebrew_config):
+    if 'dependencies' in homebrew_config:
+        logging.info("-- Installing Homebrew Dependencies")
+        for dep in homebrew_config['dependencies']:
+            if isinstance(dep, str): 
+                dependency = BrewDependency(dep)
+            else:
+                dependency = BrewDependency(
+                        dep["brew_name"], 
+                        dep["name"], 
+                        check_in_dict_failback("setup", dep))
+            handle_dependency(dependency)
+
+def main(args: argparse.Namespace, config: Config):
     if args.templates:
         copy_templates(config.templates)
     if args.dependencies:
         if not args.quick:
-            brew()
+            install_brew()
         if config.dependencies:
-            logging.info("-- Installing Dependencies")
-            for name, dep in config.dependencies.items():
-                logging.info("---- Installing", name)
-                handle_dependency(create_dependency(dep))
+            handle_dependencies(config.dependencies)
         if config.homebrew:
-            if 'dependencies' in config.homebrew:
-                logging.info("-- Installing Homebrew Dependencies")
-                for dep in config.homebrew['dependencies']:
-                    if isinstance(dep, str): 
-                        dependency = BrewDependency(dep)
-                    else:
-                        dependency = BrewDependency(
-                                dep["brew_name"], 
-                                dep["name"], 
-                                dep["setup"] if "setup" in dep else None)
-                    handle_dependency(dependency)
+            handle_homebrew(config.homebrew)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -96,4 +99,4 @@ if __name__ == "__main__":
         args.templates = True
         args.dependencies = True
 
-    main(args)
+    main(args, Config.load())
