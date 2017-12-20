@@ -3,7 +3,7 @@ import subprocess
 
 from typing import List
 
-from util import get_command
+from util import get_command, append_or_merge
 
 class Dependency(object):
     """Class for installing / updating dependencies"""
@@ -36,25 +36,25 @@ class Dependency(object):
         if self.check_install_command:
             return self._execute(self.check_install_command, "checking")
         elif self.name:
-            return subprocess.call(["which", self.name]) == 0 # TODO: replace with _execute
+            return self._execute(' '.join(["which", self.name]), "checking")
         else:
             return False
 
 
 class BrewDependency(Dependency):
-    def __init__(self, brew_name: str, name: str=None, setup: str=None):
+    TAP="tap"
+    CASK="cask"
+
+    def __init__(self, 
+            brew_name: str, 
+            name: str=None, 
+            setup: str or List[str]=None, 
+            brew_type: str=""):
         if not name:
             name = brew_name
-        install_command = ' '.join(["brew", "install", brew_name])
+        install_command = ' '.join(["brew", brew_type, "install", brew_name])
         if setup:
-            install_command = get_command([install_command, setup])
-        update_command = ' '.join(["brew", "upgrade", brew_name])
+            install_command = get_command(append_or_merge([install_command], setup))
+        update_command = ' '.join(["brew", brew_type, "upgrade", brew_name])
         super(BrewDependency, self).__init__(name, install_command, update_command)
 
-"""
-class BrewTap(BrewDependency):
-    def __init__(self, brew_name: str, name: str=None, setup: str=None):
-
-class BrewCask(BrewDependency):
-    def __init__(self, brew_name: str, name: str=None, setup: str=None):
-"""
