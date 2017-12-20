@@ -32,7 +32,7 @@ def copy_templates(template_configs: List[Dict[str, str]]):
             path = template_config['path']
             TemplateFile(name, path).copy()
         except Exception as e:
-            logging.error("Failed to copy template:", e)
+            logging.error("Failed to copy template:", template_config, e)
             raise e
 
 def handle_dependency(dependency):
