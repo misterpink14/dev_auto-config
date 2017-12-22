@@ -84,7 +84,7 @@ def handle_homebrew(homebrew_config: Dict[str, List[str or Dict[str, str]]]):
         print(homebrew_config['casks'])
         #handle_hombrew_dependencies(homebrew_config['taps'], BrewDependency.CASK)
 
-def main(args: argparse.Namespace, config: Config):
+def handle_config(args: argparse.Namespace, config: Config):
     if args.templates:
         copy_templates(config.templates)
     if args.dependencies:
@@ -94,6 +94,13 @@ def main(args: argparse.Namespace, config: Config):
             handle_dependencies(config.dependencies)
         if config.homebrew:
             handle_homebrew(config.homebrew)
+
+def handle_configs(args: argparse.Namespace, configs: Dict):
+    for group in configs:
+        handle_config(args, configs[group])
+
+def main(args: argparse.Namespace, configs: Dict):
+    handle_configs(args, configs)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -105,8 +112,12 @@ if __name__ == "__main__":
             help="Use to install dependencies")
     parser.add_argument("--all", "-a", action="store_true",
             help="Use to run everything. Equivalent to ommitting args")
+    parser.add_argument("--skip", "-s", 
+            help="Comma separated list of configs to ignore")
 
     args = parser.parse_args()
+    if args.skip:
+        args.skip = [x.strip() for x in args.skip.split(",")]
     if not len(sys.argv) > 1:
         args.all = True
     if args.templates:
@@ -115,4 +126,4 @@ if __name__ == "__main__":
         args.templates = True
         args.dependencies = True
 
-    main(args, Config.load())
+    main(args, Config.load_configs())
