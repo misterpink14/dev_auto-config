@@ -84,23 +84,19 @@ def handle_homebrew(homebrew_config: Dict[str, List[str or Dict[str, str]]]):
         print(homebrew_config['casks'])
         #handle_hombrew_dependencies(homebrew_config['taps'], BrewDependency.CASK)
 
-def handle_config(args: argparse.Namespace, config: Config):
-    if args.templates:
-        copy_templates(config.templates)
-    if args.dependencies:
-        if not args.quick:
-            install_brew()
-        if config.dependencies:
-            handle_dependencies(config.dependencies)
-        if config.homebrew:
-            handle_homebrew(config.homebrew)
-
-def handle_configs(args: argparse.Namespace, configs: Dict):
-    for group in configs:
-        handle_config(args, configs[group])
-
 def main(args: argparse.Namespace, configs: Dict):
-    handle_configs(args, configs)
+    for group in configs:
+        config = configs[group]
+        if args.templates:
+            copy_templates(config.templates)
+        if args.dependencies:
+            if not args.quick:
+                install_brew()
+            if config.dependencies:
+                handle_dependencies(config.dependencies)
+            if config.homebrew:
+                handle_homebrew(config.homebrew)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
