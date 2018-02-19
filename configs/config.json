@@ -43,7 +43,7 @@
     ],
 	"homebrew": {
         "dependencies": [
-		    "go", "icu4c", "bash-git-prompt",
+		    "go", "icu4c", "bash-git-prompt", "colordiff", 
 			{
 				"brew_name": "neovim",
 				"name": "nvim"

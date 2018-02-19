@@ -3,6 +3,7 @@ alias python='python'
 alias vim=nvim # Because neovim is my vim
 alias src="source ~/.bash_profile"
 alias mytmpdir=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`
+alias diff=`colordiff -u "$@" | less -RF`
 
 export PATH=~/.local/bin:$PATH
 #export PATH="/usr/local/opt/sqlite/bin:$PATH"
