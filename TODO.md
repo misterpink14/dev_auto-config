@@ -9,9 +9,10 @@ REFACTOR
 
 [x] Be vim/neovim agnostic
 [x] Hombrew install (the tool itself)
-[] async
+[] testing
 [] Remove my own templates and config file
 [] Public consumption
+[] async
 
 BUGS
 
