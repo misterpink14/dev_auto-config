@@ -24,7 +24,7 @@ class Config:
             if isfile(filepath):
                 group_parts = filename.split("_")
                 group_parts.pop(-1)
-                if not group_list:
+                if not group_parts:
                     group = "default"
                 else:
                     group = '_'.join(group_parts)
